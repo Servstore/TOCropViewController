@@ -705,6 +705,13 @@ static const CGFloat kTOCropViewControllerToolbarHeight = 44.0f;
     self.toolbar.resetButtonEnabled = NO;
 }
 
+- (void)cropViewDidFinish:(TOCropView *)cropView
+{
+    if (_shouldSendDelgateWhenCropDidFininsh) {
+        [self sendDelegation];
+    }
+}
+
 #pragma mark - Presentation Handling -
 - (void)presentAnimatedFromParentViewController:(UIViewController *)viewController
                                        fromView:(UIView *)fromView
@@ -901,6 +908,34 @@ static const CGFloat kTOCropViewControllerToolbarHeight = 44.0f;
     }
 }
 
+- (void)sendDelegation {
+    
+    BOOL isDidCropToImageDelegateAvailable = [self.delegate respondsToSelector:@selector(cropViewController:didCropToImage:withRect:angle:)];
+    BOOL isDidCropToImageCallbackAvailable = self.onDidCropToRect != nil;
+    
+    CGRect cropFrame = self.cropView.imageCropFrame;
+    NSInteger angle = self.cropView.angle;
+    
+    UIImage *image = nil;
+    if (angle == 0 && CGRectEqualToRect(cropFrame, (CGRect){CGPointZero, self.image.size})) {
+        image = self.image;
+    }
+    else {
+        image = [self.image croppedImageWithFrame:cropFrame angle:angle circularClip:NO];
+    }
+    
+    //Dispatch on the next run-loop so the animation isn't interuppted by the crop operation
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.03f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        if (isDidCropToImageDelegateAvailable) {
+            [self.delegate cropViewController:self didCropToImage:image withRect:cropFrame angle:angle];
+        }
+        
+        if (isDidCropToImageCallbackAvailable) {
+            self.onDidCropToRect(image, cropFrame, angle);
+        }
+    });
+}
+
 - (void)doneButtonTapped
 {
     CGRect cropFrame = self.cropView.imageCropFrame;
@@ -997,25 +1032,7 @@ static const CGFloat kTOCropViewControllerToolbarHeight = 44.0f;
     }
     //If the delegate/block that requires the specific cropped image is provided, call it
     else if (isDidCropToImageDelegateAvailable || isDidCropToImageCallbackAvailable) {
-        UIImage *image = nil;
-        if (angle == 0 && CGRectEqualToRect(cropFrame, (CGRect){CGPointZero, self.image.size})) {
-            image = self.image;
-        }
-        else {
-            image = [self.image croppedImageWithFrame:cropFrame angle:angle circularClip:NO];
-        }
-        
-        //Dispatch on the next run-loop so the animation isn't interuppted by the crop operation
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.03f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            if (isDidCropToImageDelegateAvailable) {
-                [self.delegate cropViewController:self didCropToImage:image withRect:cropFrame angle:angle];
-            }
-
-            if (isDidCropToImageCallbackAvailable) {
-                self.onDidCropToRect(image, cropFrame, angle);
-            }
-        });
-        
+        [self sendDelegation];
         isCallbackOrDelegateHandled = YES;
     }
     

@@ -32,6 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)cropViewDidBecomeResettable:(nonnull TOCropView *)cropView;
 - (void)cropViewDidBecomeNonResettable:(nonnull TOCropView *)cropView;
+- (void)cropViewDidFinish:(nonnull TOCropView *)cropView;
 
 @end
 

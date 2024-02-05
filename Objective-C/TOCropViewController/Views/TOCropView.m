@@ -806,6 +806,7 @@ typedef NS_ENUM(NSInteger, TOCropViewOverlayEdge) {
     
     if (recognizer.state == UIGestureRecognizerStateEnded) {
         [self startResetTimer];
+        [self.delegate cropViewDidFinish:self];
     }
     
     [self updateCropBoxFrameWithGesturePoint:point];
@@ -859,6 +860,7 @@ typedef NS_ENUM(NSInteger, TOCropViewOverlayEdge) {
     [self setEditing:NO resetCropBox:YES animated:YES];
     [self.resetTimer invalidate];
     self.resetTimer = nil;
+    
 }
 
 - (void)cancelResetTimer

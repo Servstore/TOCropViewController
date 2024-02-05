@@ -237,6 +237,12 @@ open class CropViewController: UIViewController, TOCropViewControllerDelegate {
      
      Default is false.
      */
+    
+    public var shouldSendDelgateWhenCropDidFininsh: Bool {
+        set { toCropViewController.shouldSendDelgateWhenCropDidFininsh = newValue }
+        get { return toCropViewController.shouldSendDelgateWhenCropDidFininsh }
+    }
+    
     public var rotateButtonsHidden: Bool {
         set { toCropViewController.rotateButtonsHidden = newValue }
         get { return toCropViewController.rotateButtonsHidden }

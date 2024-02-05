@@ -233,6 +233,9 @@
 /**
  The position of the Toolbar the default value is `TOCropViewControllerToolbarPositionBottom`.
  */
+
+@property (nonatomic, assign) BOOL shouldSendDelgateWhenCropDidFininsh;
+
 @property (nonatomic, assign) TOCropViewControllerToolbarPosition toolbarPosition;
 
 /**
