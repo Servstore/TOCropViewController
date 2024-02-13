@@ -852,7 +852,10 @@ typedef NS_ENUM(NSInteger, TOCropViewOverlayEdge) {
         return;
     
     self.resetTimer = [NSTimer scheduledTimerWithTimeInterval:self.cropAdjustingDelay target:self selector:@selector(timerTriggered) userInfo:nil repeats:NO];
-    [self.delegate cropViewDidFinish:self];
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [self.delegate cropViewDidFinish:self];
+    });
 }
 
 - (void)timerTriggered
